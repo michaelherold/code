@@ -1,8 +1,13 @@
 RSpec.describe Culinarian::DSL do
   class SampleRecipe
     include Culinarian::DSL
+    using Culinarian::UnitRefinements
 
-    hardware_needed small_bowl: Culinarian::Bowl, large_bowl: Culinarian::Bowl
+    hardware_needed small_bowl: Bowl, large_bowl: Bowl
+
+    step(0).with(small_bowl) do
+      mix 1.cup.of(Butter)
+    end
   end
 
   subject(:recipe) { SampleRecipe.new }
@@ -26,5 +31,11 @@ RSpec.describe Culinarian::DSL do
     subject { recipe.small_bowl }
 
     it { is_expected.to eq(Culinarian::Bowl.new('small_bowl')) }
+  end
+
+  describe '#steps' do
+    subject { recipe.steps }
+
+    it { is_expected.to eq([Culinarian::Step.new(0)]) }
   end
 end

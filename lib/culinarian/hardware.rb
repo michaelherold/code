@@ -1,8 +1,10 @@
 require 'culinarian/string_converter'
+require 'culinarian/refinements/units'
 
 module Culinarian
   class Hardware
     include Comparable
+    using Culinarian::UnitRefinements
 
     attr_accessor :name
     attr_reader :type
@@ -14,6 +16,15 @@ module Culinarian
 
     def <=>(other)
       name <=> other.name
+    end
+
+    def ingredients
+      @ingredients ||= []
+    end
+
+    def mix(*mixers)
+      mixers = Array(mixers)
+      ingredients.concat(mixers)
     end
 
     def to_s
