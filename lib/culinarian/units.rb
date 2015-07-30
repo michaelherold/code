@@ -1,3 +1,5 @@
+require 'culinarian/ingredients'
+
 module Culinarian
   class Unit
     include Comparable
@@ -20,6 +22,10 @@ module Culinarian
 
     def convert_to_unit(_klass)
       self
+    end
+
+    def of(ingredient)
+      ingredient.new(self)
     end
 
     def to_s
