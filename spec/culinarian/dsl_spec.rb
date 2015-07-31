@@ -3,10 +3,14 @@ RSpec.describe Culinarian::DSL do
     include Culinarian::DSL
     using Culinarian::UnitRefinements
 
-    hardware_needed small_bowl: Bowl, large_bowl: Bowl
+    hardware_needed small_bowl: Bowl, large_bowl: Bowl, oven: Oven
 
-    step(0).with(small_bowl) do
-      mix 1.cup.of(Butter)
+    step(0).with(oven) do
+      preheat.to 375.degrees
+    end
+
+    step(1).with(small_bowl) do
+      mix 2.25.cups.of(Flour), 1.tsp.of(BakingSoda), 1.tsp.of(Salt)
     end
   end
 
@@ -17,7 +21,8 @@ RSpec.describe Culinarian::DSL do
 
     it do
       is_expected.to eq([Culinarian::Bowl.new('small_bowl'),
-                         Culinarian::Bowl.new('large_bowl')])
+                         Culinarian::Bowl.new('large_bowl'),
+                         Culinarian::Oven.new('oven')])
     end
   end
 
@@ -36,6 +41,6 @@ RSpec.describe Culinarian::DSL do
   describe '#steps' do
     subject { recipe.steps }
 
-    it { is_expected.to eq([Culinarian::Step.new(0)]) }
+    it { is_expected.to eq([Culinarian::Step.new(0), Culinarian::Step.new(1)]) }
   end
 end

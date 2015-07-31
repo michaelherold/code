@@ -18,6 +18,15 @@ module Culinarian
       name <=> other.name
     end
 
+    def to_s
+      name
+    end
+    alias_method :inspect, :to_s
+  end
+
+  class BakingSheet < Hardware; end
+
+  class Bowl < Hardware
     def ingredients
       @ingredients ||= []
     end
@@ -26,15 +35,29 @@ module Culinarian
       mixers = Array(mixers)
       ingredients.concat(mixers)
     end
-
-    def to_s
-      name
-    end
-    alias_method :inspect, :to_s
   end
 
-  class BakingSheet < Hardware; end
-  class Bowl < Hardware; end
   class CoolingRack < Hardware; end
-  class Oven < Hardware; end
+
+  class Oven < Hardware
+    class TemperatureChange
+      def initialize(oven)
+        @oven = oven
+      end
+
+      def to(temperature)
+        @oven.heat_to(temperature)
+      end
+    end
+
+    attr_reader :temperature
+
+    def heat_to(temperature)
+      @temperature = temperature
+    end
+
+    def preheat
+      TemperatureChange.new(self)
+    end
+  end
 end
