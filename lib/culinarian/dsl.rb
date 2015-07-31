@@ -27,9 +27,7 @@ module Culinarian
       end
 
       def step(name)
-        step = Step.new(name)
-        steps << step
-        step
+        find_or_create_step(name)
       end
 
       def steps
@@ -41,6 +39,12 @@ module Culinarian
       def add_hardware(name, klass)
         hardware << klass.new(name)
         define_reader(name)
+      end
+
+      def const_missing(name)
+        Culinarian.const_get(name)
+      rescue NameError
+        super
       end
 
       def define_reader(name)
@@ -55,10 +59,15 @@ module Culinarian
         instance_eval reader, __FILE__, line_number
       end
 
-      def const_missing(name)
-        Culinarian.const_get(name)
-      rescue NameError
-        super
+      def find_or_create_step(name)
+        step = steps.find { |s| s.name == name }
+
+        unless step
+          step = Step.new(name)
+          steps << step
+        end
+
+        step
       end
     end
   end
