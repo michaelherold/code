@@ -3,7 +3,11 @@ RSpec.describe Culinarian::DSL do
     include Culinarian::DSL
     using Culinarian::UnitRefinements
 
-    hardware_needed small_bowl: Bowl, large_bowl: Bowl, oven: Oven
+    hardware_needed cookie_sheet: BakingSheet,
+                    cooling_rack: CoolingRack,
+                    large_bowl: Bowl,
+                    oven: Oven,
+                    small_bowl: Bowl
 
     step(0).with(oven) do
       preheat.to 375.degrees
@@ -20,9 +24,11 @@ RSpec.describe Culinarian::DSL do
     subject { recipe.hardware }
 
     it do
-      is_expected.to eq([Culinarian::Bowl.new('small_bowl'),
+      is_expected.to eq([Culinarian::BakingSheet.new('cookie_sheet'),
+                         Culinarian::CoolingRack.new('cooling_rack'),
                          Culinarian::Bowl.new('large_bowl'),
-                         Culinarian::Oven.new('oven')])
+                         Culinarian::Oven.new('oven'),
+                         Culinarian::Bowl.new('small_bowl')])
     end
   end
 

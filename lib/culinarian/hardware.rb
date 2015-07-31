@@ -24,7 +24,16 @@ module Culinarian
     alias_method :inspect, :to_s
   end
 
-  class BakingSheet < Hardware; end
+  class BakingSheet < Hardware
+    def fill_with(*items)
+      items = Array(items)
+      ingredients.concat(items)
+    end
+
+    def ingredients
+      @ingredients ||= []
+    end
+  end
 
   class Bowl < Hardware
     def ingredients
@@ -37,7 +46,16 @@ module Culinarian
     end
   end
 
-  class CoolingRack < Hardware; end
+  class CoolingRack < Hardware
+    def fill_with(*items)
+      items = Array(items)
+      results.concat(items)
+    end
+
+    def results
+      @results ||= []
+    end
+  end
 
   class Oven < Hardware
     class TemperatureChange
