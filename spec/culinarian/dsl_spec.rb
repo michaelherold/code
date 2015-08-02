@@ -16,6 +16,13 @@ RSpec.describe Culinarian::DSL do
     step(1).with(small_bowl) do
       mix 2.25.cups.of(Flour), 1.tsp.of(BakingSoda), 1.tsp.of(Salt)
     end
+
+    step(2).with(large_bowl) do
+      mix 1.cup.of(Butter), 0.75.cup.of(Sugar), 0.75.cup.of(BrownSugar), 1.tsp.of(Vanilla)
+      mix_individually 2.unit.of(Egg)
+      mix_gradually results.of(step(1))
+      mix 2.cups.of(ChocolateChips)
+    end
   end
 
   subject(:recipe) { SampleRecipe.new }
@@ -47,6 +54,10 @@ RSpec.describe Culinarian::DSL do
   describe '#steps' do
     subject { recipe.steps }
 
-    it { is_expected.to eq([Culinarian::Step.new(0), Culinarian::Step.new(1)]) }
+    it do
+      is_expected.to eq([Culinarian::Step.new(0),
+                         Culinarian::Step.new(1),
+                         Culinarian::Step.new(2)])
+    end
   end
 end

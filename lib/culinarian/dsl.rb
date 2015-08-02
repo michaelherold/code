@@ -1,4 +1,5 @@
 require 'culinarian/hardware'
+require 'culinarian/result_set'
 require 'culinarian/step'
 
 module Culinarian
@@ -63,7 +64,7 @@ module Culinarian
         step = steps.find { |s| s.name == name }
 
         unless step
-          step = Step.new(name)
+          step = Step.new(name, ResultSet.new(@steps))
           steps << step
         end
 
