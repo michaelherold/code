@@ -44,6 +44,8 @@ module Culinarian
       mixers = Array(mixers)
       ingredients.concat(mixers)
     end
+    alias_method :mix_gradually, :mix
+    alias_method :mix_individually, :mix
   end
 
   class CoolingRack < Hardware
