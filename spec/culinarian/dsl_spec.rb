@@ -23,6 +23,10 @@ RSpec.describe Culinarian::DSL do
       mix_gradually results.of(step(1))
       mix 2.cups.of(ChocolateChips)
     end
+
+    step(3).with(cookie_sheet) do
+      fill_with 1.tbsp.of(results.of(step(2)))
+    end
   end
 
   subject(:recipe) { SampleRecipe.new }
@@ -57,7 +61,8 @@ RSpec.describe Culinarian::DSL do
     it do
       is_expected.to eq([Culinarian::Step.new(0),
                          Culinarian::Step.new(1),
-                         Culinarian::Step.new(2)])
+                         Culinarian::Step.new(2),
+                         Culinarian::Step.new(3)])
     end
   end
 end

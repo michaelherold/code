@@ -4,8 +4,8 @@ module Culinarian
       super
     end
 
-    def of(name)
-      __getobj__.find { |result| result.name == name }
+    def of(step)
+      __getobj__.find { |result| result == step }
     end
 
     def results
@@ -13,7 +13,7 @@ module Culinarian
     end
 
     def step(name)
-      __getobj__.find { |result| result.name == name }
+      __getobj__.find { |result| result.named?(name) }
     end
   end
 end
