@@ -13,6 +13,11 @@ module Culinarian
       end
       alias_method :degrees, :degree
 
+      def minute
+        Minute.new(self)
+      end
+      alias_method :minutes, :minute
+
       def tbsp
         Tablespoon.new(self)
       end

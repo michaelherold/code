@@ -27,6 +27,10 @@ RSpec.describe Culinarian::DSL do
     step(3).with(cookie_sheet) do
       fill_with 1.tbsp.of(results.of(step(2)))
     end
+
+    step(4).with(oven) do
+      bake(results.of(step(3))).for 9.minutes.to 11.minutes
+    end
   end
 
   subject(:recipe) { SampleRecipe.new }
@@ -62,7 +66,8 @@ RSpec.describe Culinarian::DSL do
       is_expected.to eq([Culinarian::Step.new(0),
                          Culinarian::Step.new(1),
                          Culinarian::Step.new(2),
-                         Culinarian::Step.new(3)])
+                         Culinarian::Step.new(3),
+                         Culinarian::Step.new(4)])
     end
   end
 end

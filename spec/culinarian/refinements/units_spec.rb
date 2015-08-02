@@ -16,6 +16,12 @@ RSpec.describe Culinarian::UnitRefinements do
       it { is_expected.to eq Culinarian::Degree.new(42) }
     end
 
+    describe '#minute' do
+      subject { number.minute }
+
+      it { is_expected.to eq Culinarian::Minute.new(42) }
+    end
+
     describe '#tbsp' do
       subject { number.tbsp }
 

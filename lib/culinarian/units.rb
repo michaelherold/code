@@ -47,6 +47,12 @@ module Culinarian
 
   class Degree < Unit; end
 
+  class Minute < Unit
+    def to(range_end)
+      TimeSpan.new(self, range_end)
+    end
+  end
+
   class Tablespoon < Unit
     def convert_to_unit(klass)
       case klass
@@ -67,5 +73,25 @@ module Culinarian
       else self
       end
     end
+  end
+
+  class TimeSpan
+    include Comparable
+
+    attr_reader :start, :end
+
+    def initialize(lesser_time, greater_time)
+      @start = lesser_time
+      @end = greater_time
+    end
+
+    def <=>(other)
+      start <=> other.start && self.end <=> other.end
+    end
+
+    def to_s
+      "#{start} to #{self.end}"
+    end
+    alias_method :inspect, :to_s
   end
 end

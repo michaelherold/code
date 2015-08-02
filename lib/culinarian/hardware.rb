@@ -60,6 +60,17 @@ module Culinarian
   end
 
   class Oven < Hardware
+    class Baking
+      def initialize(oven, items)
+        @oven = oven
+        @oven.results << items
+      end
+
+      def for(time_span)
+        @oven.bake_for(time_span)
+      end
+    end
+
     class TemperatureChange
       def initialize(oven)
         @oven = oven
@@ -72,12 +83,24 @@ module Culinarian
 
     attr_reader :temperature
 
+    def bake(*items)
+      Baking.new(self, Array(items))
+    end
+
+    def bake_for(time_span)
+      @bake_time = time_span
+    end
+
     def heat_to(temperature)
       @temperature = temperature
     end
 
     def preheat
       TemperatureChange.new(self)
+    end
+
+    def results
+      @results ||= []
     end
   end
 end
