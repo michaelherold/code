@@ -64,7 +64,7 @@ module Culinarian
         step = steps.find { |s| s.name == name }
 
         unless step
-          step = Step.new(name, ResultSet.new(@steps))
+          step = Step.new(name, ResultSet.new(@steps.dup))
           steps << step
         end
 
