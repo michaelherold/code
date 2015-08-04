@@ -50,7 +50,7 @@
         </section>
         <section data-markdown>
           <script type="text/markdown">
-            At it's heart, computer programming is communication:
+            At its heart, computer programming is communication:
 
             * How do we accomplish a task?
             * What are the explicit steps that we must take to do it?
@@ -503,6 +503,28 @@
               ```
             </script>
           </section>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ```ruby
+            class Cookies
+              include Culinarian::DSL
+              using Culinarian::UnitRefinements
+
+              hardware_needed small_bowl: Bowl,
+                large_bowl: Bowl,
+                oven: Oven,
+                cookie_sheet: BakingSheet,
+                cooling_rack: CoolingRack
+
+              step(0).using(oven) do
+                preheat.to 375.degrees
+              end
+
+              # ...
+            end
+            ```
+          </script>
         </section>
         <section data-markdown>
           <script type="text/markdown">
