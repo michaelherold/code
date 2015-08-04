@@ -25,7 +25,7 @@ module Culinarian
     end
 
     def with(hardware, &block)
-      StepDefinition.new(@prior_results, hardware).instance_eval(&block)
+      StepDefinition.new(@prior_results, hardware).instance_exec(&block)
     end
   end
 end
