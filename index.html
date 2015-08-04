@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Writing Code Non-programmers Can Read | Coffee &amp; Code, August 4, 2015</title>
+
+    <meta name="description" content="An introduction to metaprogramming in Ruby">
+    <meta name="author" content="Michael Herold">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/moon.css" id="theme">
+    <link rel="stylesheet" href="lib/css/fontawesome.css">
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <script>
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown>
+          <script type="text/markdown">
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            Computer science is the study of abstraction.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            Software development is the study of abstraction.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            At it's heart, computer programming is communication:
+
+            * How do we accomplish a task?
+            * What are the explicit steps that we must take to do it?
+            * How can we make that process better?
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            Most programming languages bear little resemblance to natural
+            human language.
+
+            ```javascript
+            for (var i = 0; i < 5; i++) {
+              console.log("Hello, world");
+            }
+            ```
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            It scares non-programmers with its syntax.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            > The goal of Ruby is to make programmers happy.
+
+            Yukihiro Matsumoto, creator of Ruby
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            Out of the box, you can write code that looks English-like.
+
+            ```ruby
+            5.times do
+              puts "Hello, world"
+            end
+            ```
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            However, like any programming language, there's only so
+            much that Ruby knows how to do out-of-the box.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            What can we do to change that?
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ## Writing Code Nonprogrammers Can Read
+            ### An introduction to metaprogramming in Ruby
+
+            Michael Herold
+
+            Full-stack Engineer, AcceptOn
+          </script>
+        </section>
+        <section>
+          <section data-markdown>
+            <script type="text/markdown">
+              Ruby is thoroughly object-oriented (Smalltalk inspired).
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ## Classes
+
+              ```ruby
+              class Duck
+                def quack
+                  puts 'Quack!'
+                end
+              end
+
+              duck = Duck.new
+              duck.quack  #=> prints "Quack!" to the command line
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ## Inheritance
+
+              ```ruby
+              class BabyDuck < Duck
+                def quack
+                  puts 'quack!'
+                end
+              end
+
+              duck = BabyDuck.new
+              duck.quack  #=> prints "quack!" to the command line
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ## Mixins
+
+              ```ruby
+              module Winged
+                def flap_wings
+                  puts 'Flap, flap'
+                end
+              end
+
+              class Duck
+                include Winged
+              end
+
+              duck = Duck.new
+              duck.flap_wings  #=> prints "Flap, flap" to the command line
+              ```
+            </script>
+          </section>
+        </section>
+        <section>
+          <section data-markdown>
+            <script type="text/markdown">
+              _Everything_ in Ruby is an object.
+
+              ```ruby
+              boolean = true
+              boolean.class #=> TrueClass
+              boolean.methods #=> [:to_s, :inspect, :clone, :instance_variables, ...]
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              _Everything_ in Ruby is open to extension.
+
+              ```ruby
+              class TrueClass
+                def better_than_false?
+                  true
+                end
+              end
+
+              true.better_than_false?  #=> true
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ![With great power comes great responsibility][greatpower]
+
+              [greatpower]: img/greatpower.jpg
+            </script>
+          </section>
+        </section>
+        <section>
+          <section data-markdown>
+            <script type="text/markdown">
+              There are many ways to modify classes and objects.
+
+              We're going to talk about two of them.
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              First, we can add code to a class or object at runtime.
+
+              This is done with `Module.class_eval` or `Module.instance_eval`.
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              Module.class_eval and Module.instance_eval
+
+              ```ruby
+              module DefineReader
+                def define_reader(name)
+                  reader <<-RUBY
+                    def #{name}
+                      @#{name}
+                    end
+                  RUBY
+                  class_eval reader
+                end
+              end
+              ```
+
+              ```ruby
+              class PartyGoer
+                extend DefineReader
+
+                define_reader 'catchphrase'
+
+                def initialize(catchphrase)
+                  @catchphrase = catchphrase
+                end
+              end
+
+              wayne = PartyGoer.new('Party on!')
+              puts wayne.catchphrase  #=> Prints "Party on!"
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              Next, we can change the receive of messages so we can
+              just state the list of messages we can.
+
+              This is done with Module.class_exec and Module.instance_exec.
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              Module.class_exec and Module.instance_exec
+
+              ```ruby
+              class PartyGoer
+                def initialize(name, catchphrase)
+                  @name = name
+                  @catchphrase = catchphrase
+                end
+
+                def party_on!
+                  puts "#{@name}: Party on!"
+                end
+
+                def say_catchphrase!
+                  puts "#{@name}: #{@catchphrase}"
+                end
+              end
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              Module.class_exec and Module.instance_exec
+
+              ```ruby
+              wayne = PartyGoer.new('Wayne', 'Awesome!')
+              wayne.instance_exec do
+                party_on!
+                say_catchphrase!
+                party_on!
+              end
+
+              #=> Prints:
+              #=> Wayne: Party time!
+              #=> Wayne: Awesome!
+              #=> Wayne: Party on!
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              How can we combine them?
+            </script>
+          </section>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            Concrete example: recipe building.
+
+            ![Tollhouse cookies][cookies]
+
+            [cookies]: img/cookies.jpg
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ## Recipe
+
+            * Preheat oven to 375 degrees F.
+            * Combine 2 1/4 cups flour, 1 tsp baking soda, and 1 tsp salt
+              in a small bowl.
+            * Beat 1 cup butter, 3/4 cup sugar, 3/4 cup brown sugar, and
+              1 tsp vanilla extract until creamy. Add 2 eggs, one at a time,
+              beating well after each addition. Gradually beat in the flour
+              mixture. Stir in morsels and nuts.
+            * Drop by rounded tablespoon onto ungreased baking sheets.
+            * Bake for 9 to 11 minutes or until golden brown.
+            * Cool on baking wire racks until cooled completely.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            How could we express this in code?
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ## An object-oriented approach
+
+            ```ruby
+            oven = Oven.new
+            oven.preheat_to(375)
+
+            small_bowl = Bowl.new
+            small_bowl.mix(Flour.new(Cup.new(2.25)), BakingSoda.new ...)
+
+            ...
+            ```
+
+            What non-programmer is going to want to do this?
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            We need something simpler to make our users happy.
+
+            Let's take on some of the work ourselves to make it
+            easier on them by creating a Domain-Specific Language (DSL).
+          </script>
+        </section>
+        <section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              class Cookies
+                include Culinarian::DSL
+                using Culinarian::UnitRefinements
+
+                hardware_needed small_bowl: Bowl,
+                  large_bowl: Bowl,
+                  oven: Oven,
+                  cookie_sheet: BakingSheet,
+                  cooling_rack: CoolingRack
+
+                step(0).using(oven) do
+                  preheat.to 375.degrees
+                end
+
+                # ...
+              end
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              class Cookies
+                using Culinarian::UnitRefinements
+              end
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              module Culinarian::UnitRefinements
+                refine Numeric do
+                  def cup
+                    Cup.new(self)
+                  end
+                  alias_method :cups, :cup
+
+                  # ... rest elided
+                end
+              end
+              ```
+
+              ```ruby
+              2.cups == Cup.new(2)
+              1.cup == Cup.new(1)
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              class Cookies
+                include Culinarian::DSL
+
+                hardware_needed small_bowl: Bowl,
+                  large_bowl: Bowl,
+                  oven: Oven,
+                  cookie_sheet: BakingSheet,
+                  cooling_rack: CoolingRack
+              end
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              def hardware_needed(hardware)
+                hardware.each do |name, klass|
+                  @hardware << klass.new(name)
+                  define_reader(name)
+                end
+              end
+              ```
+              ```ruby
+              def define_reader(name)
+                reader = <<-RUBY
+                  def #{name}
+                    hardware.find { |h| h.name == '#{name}' }
+                  end
+                RUBY
+
+                class_eval reader    #=> writes a instance method
+                instance_eval reader #=> writes a class method
+              end
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              class Cookies
+                include Culinarian::DSL
+
+                step(0).using(oven) do
+                  preheat.to 375.degrees
+                end
+              end
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/markdown">
+              ```ruby
+              module Culinarian::DSL
+                def step(name)
+                  step = Step.new(name)
+                  steps << step
+                  step
+                end
+              end
+              ```
+              ```ruby
+              class Culinarian::Step
+                def using(hardware, &block)
+                  hardware.instance_exec(&block)
+                end
+              end
+              ```
+              ```ruby
+              class Culinarian::Oven
+                class TemperatureChange
+                  def to(temperature)
+                    @oven.heat_to(temperature)
+                  end
+                end
+
+                def preheat
+                  TemperatureChange.new(self)
+                end
+              end
+              ```
+            </script>
+          </section>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ## Total Codebase
+
+            ```
+            $ cloc **/*.rb
+                  12 text files.
+                  12 unique files.
+                  0 files ignored.
+
+            http://cloc.sourceforge.net v 1.64
+            ---------------------------------------------
+            Language    files    blank    comment    code
+            ---------------------------------------------
+            Ruby           12       81          0     373
+            ---------------------------------------------
+            ```
+
+            It's not "feature complete" but the DSL is fleshed out
+            for the cookie recipe. It's also easily open for extension.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            This is a contrived example, but I'm actually using
+            metaprogramming in production code.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            Making it so your domain experts can program "at the speed
+            of thought" can increase your velocity.
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            However, there are caveats to these techniques:
+
+            * tracing errors
+            * more complexity
+            * performance is _hard_
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ![Batman's utility belt][utilitybelt]
+
+            [utilitybelt]: img/utilitybelt.jpg
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/markdown">
+            ## Recommended Reading - Metaprogramming
+
+            * Gay, Jim. _Ruby DSL Handbook_. Saturn Flyer, 2015.
+              [https://clean-ruby.com/dsl][dsl]
+            * Grimm, Avdi. _Much Ado About Naught_. Ship Rise, 2013.
+              [https://shiprise.dpdcart.com/][avdi]
+
+            ## Recommended Reading - General Ruby
+
+            * Metz, Sandi. _Practical Object-oriented Design in Ruby: An
+              Agile Primer_. Addison-Wesley, 2013.
+            * Thomas, Dave. _Programming Ruby 1.9 & 2.0: The Pragmatic Programmers'
+              Guide_. 4th ed. Pragmatic Bookshelf, 2013.
+
+            [avdi]: https://shiprise.dpdcart.com/
+            [dsl]: https://clean-ruby.com/dsl
+          </script>
+        </section>
+        <section>
+          <p>Culinarian source code available at:</p>
+          <a href="https://github.com/michaelherold/culinarian">https://github.com/michaelherold/culinarian</a>
+          <p>Want to chat?</p>
+          <ul style="list-style: none;">
+            <li><i class="fa fa-fw fa-envelope"></i><a href="mailto:michael.j.herold@gmail.com">michael.j.herold@gmail.com</a></li>
+            <li><i class="fa fa-fw fa-github"></i><a href="https://github.com/michaelherold">michaelherold</a></li>
+            <li><i class="fa fa-fw fa-twitter"></i><a href="https://twitter.com/mherold">mherold</a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script>
+
+    <script>
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        slideNumber: true,
+        history: true,
+        keyboard: true,
+        overview: true,
+        center: true,
+        touch: true,
+        loop: false,
+        rtl: false,
+        fragments: true,
+        embedded: false,
+        help: false,
+        hideAddressBar: true,
+        previewLinks: false,
+        transition: 'none',
+        transitionSpeed: 'default',
+
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/notes/notes.js', async: true }
+        ]
+      });
+    </script>
+  </body>
+</html>
